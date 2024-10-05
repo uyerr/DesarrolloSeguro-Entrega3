@@ -2,6 +2,7 @@ import hashlib
 import re
 import getpass
 import mysql.connector
+import configparser
 
 # Variable global para la sesión activa
 sesion_activa = None
@@ -119,26 +120,30 @@ def mostrar_usuarios():
             print(user[0])
 
 if __name__ == "__main__":
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    DB_HOST = config['database']['host']
+    DB_USER = config['database']['user']
+    DB_PASS = config['database']['password']
     dbusuarios = mysql.connector.connect(
-            host="localhost",
-            user="admin",
-            passwd="admin",
+            host=DB_HOST,
+            user=DB_USER,
+            passwd=DB_PASS,
         )
     cursor = dbusuarios.cursor(buffered=True)
         
     db_name = "usuarios"
     db_exists = cursor.execute("SHOW DATABASES")
     db_exists = cursor.fetchall()
-    print(db_exists)
     if db_name in [db[0] for db in db_exists]:
         print(f"La base de datos '{db_name}' existe.")
     else:
         print(f"La base de datos '{db_name}' no existe. Creando base de datos '{db_name}'")
         cursor.execute("CREATE DATABASE usuarios")
         dbusuarios = mysql.connector.connect(
-        host="localhost",
-        user="admin",
-        passwd="admin",
+        host=DB_HOST,
+        user=DB_USER,
+        passwd=DB_PASS,
         database="usuarios"
     )
         cursor = dbusuarios.cursor(buffered=True)
