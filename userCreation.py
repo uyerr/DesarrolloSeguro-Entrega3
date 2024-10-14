@@ -3,6 +3,7 @@ import re
 import getpass
 import mysql.connector
 import configparser
+import time
 
 # Variable global para la sesión activa
 sesion_activa = None
@@ -74,6 +75,7 @@ def login():
         return
     
     usuario = input("Ingrese su nombre de usuario: ")
+    password = getpass.getpass("Ingrese su contraseña: ")
     usuario = usuario.lower()
     usuario = validar_usuario(usuario)
     
@@ -83,10 +85,10 @@ def login():
     user_exists = cursor.execute(f"SELECT EXISTS(SELECT 1 FROM usuarios.credenciales WHERE username = '{usuario}')")
     user_exists = cursor.fetchone()[0]
     if user_exists == 0:
-        print("Error: El usuario no existe.")
+        print(f"Credenciales Incorrectas")
+        time.sleep(2)
         return
     
-    password = getpass.getpass("Ingrese su contraseña: ")
     password_hash = hashPassword(password)
     
     cursor.execute("SELECT * FROM usuarios.credenciales WHERE username = %s AND passwordHash = %s", (usuario, password_hash,))
@@ -95,7 +97,8 @@ def login():
         sesion_activa = usuario  # Guardar el usuario en la sesión activa
         print(f"Sesión iniciada con éxito. Bienvenido, {usuario}!")
     else:
-        print("Error: Contraseña incorrecta.")
+        print("Credenciales Incorrectas")
+        time.sleep(2)
 
 def logout():
     global sesion_activa
@@ -172,4 +175,4 @@ if __name__ == "__main__":
             print("Saliendo del programa...")
             break
         else:
-            print("Opción inválida.")
+            print(f"Opción {opcion} inválida.")
